@@ -109,29 +109,7 @@ void setup()
 
 
 
-bool  goalmkread(void)
-{
-  if (digitalRead(13))
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-}
 
-bool  cornermkread(void)
-{
-  if (digitalRead(12))
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-}
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -144,7 +122,8 @@ byte modesw = SW_NON;
 byte modeswtmp = SW_NON;
 u32  nrmlclk = 0;
 u32   intvlcnt = 0;
-void loop() {
+void loop() 
+{
   // put your main code here, to run repeatedly:
   u16 tmp;
   u16 adval;

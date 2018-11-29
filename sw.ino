@@ -12,6 +12,10 @@
 #define SW_UP_TH    (u16)(700)     /* */
 #define SW_DOWN_TH  (u16)(800)    /*  */
 
+byte  swnow;      //  スイッチの現在状態
+byte  swold[8];   //  スイッチの前状態
+byte  swedge;     //  エッジがあるかないかを保存
+
 byte swread(void)
 {
     u16 tmp, adc0, adc1;
