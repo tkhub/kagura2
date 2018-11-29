@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <MsTimer2.h>
+#include "sw.h"
 //#include <FaBoLCDmini_AQM0802A.h>
 
 /********  PIN CONFIG  *****************/
@@ -82,18 +83,18 @@ void setupperipheral()
 
 void setupsoftware()
 {
-dacoutput(0,2048);
+  dacoutput(0,2048);
   dacoutput(1,2048);
   dacoutput(2,2048);
   dacoutput(3,2048);
   Serial.print("DAC OUT 0V");
   
   //lcd.begin();
-//  lcd.print("hello!");
+  //  lcd.print("hello!");
+
+  swinit();
 
   Serial.print("Kagura2 Start");
-
-
 }
 
 
@@ -270,5 +271,6 @@ void loop()
 
 void fastintvlint()
 {
+  swintr();
   intvlcnt++;
 }
