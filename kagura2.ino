@@ -74,8 +74,8 @@ void setupperipheral()
 
   Serial.print("SPI Init");
 
-  MsTimer2::set(1, fastinvlint);
-  MsTimer2::Start();
+  MsTimer2::set(1, fastintvlint);
+  MsTimer2::start();
 
 //  Wire.begin();
 }
@@ -289,7 +289,7 @@ void loop() {
 /*****************************************************************************/
 /*****************************************************************************/
 
-void fastitvlint()
+void fastintvlint()
 {
   intvlcnt++;
 }
