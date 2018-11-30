@@ -1,7 +1,5 @@
 #include <SPI.h>
 #include <Wire.h>
-#include <MsTimer2.h>
-#include "sw.h"
 //#include <FaBoLCDmini_AQM0802A.h>
 
 /********  PIN CONFIG  *****************/
@@ -25,15 +23,8 @@
 */
 /*****************************************************************************/
 
-#define SW_UP   3
-#define SW_DOWN 4
-#define SW_GO   1
-#define SW_ESC  2 
-#define SW_NON  0
-
-
-void setupdio()
-{
+void setup() {
+  // put your setup code here, to run once:
   //  peripheral init
   //  GOAL Marker  
   pinMode(13, INPUT);
@@ -57,13 +48,31 @@ void setupdio()
   dipid();
   // DIV_ENMTR_DO  
   dimtr();
-}
 
-void setupperipheral()
-{
   Serial.begin(9600);
   Serial.print("Serial Init");
 
+  spisetup();
+  Serial.print("SPI Init");
+
+//  Wire.begin();
+
+  // Software init
+  dacoutput(0,2048);
+  dacoutput(1,2048);
+  dacoutput(2,2048);
+  dacoutput(3,2048);
+  Serial.print("DAC OUT 0V");
+  
+  //lcd.begin();
+//  lcd.print("hello!");
+
+  Serial.print("Kagura2 Start");
+
+}
+
+void spisetup()
+{
   /* SPI初期化 */
   SPI.begin();
   /* MSB FAST */
@@ -72,45 +81,37 @@ void setupperipheral()
   SPI.setClockDivider(SPI_CLOCK_DIV16);
   /* クロック負パルス 立ち上がりエッジサンプリング */
   SPI.setDataMode(SPI_MODE3);
-
-  Serial.print("SPI Init");
-
-  MsTimer2::set(1, fastintvlint);
-  MsTimer2::start();
-
-//  Wire.begin();
 }
 
-void setupsoftware()
+#define SW_UP   3
+#define SW_DOWN 4
+#define SW_GO   1
+#define SW_ESC  2 
+#define SW_NON  0
+
+bool  goalmkread(void)
 {
-  dacoutput(0,2048);
-  dacoutput(1,2048);
-  dacoutput(2,2048);
-  dacoutput(3,2048);
-  Serial.print("DAC OUT 0V");
-  
-  //lcd.begin();
-  //  lcd.print("hello!");
-
-  swinit();
-
-  Serial.print("Kagura2 Start");
+  if (digitalRead(13))
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
 }
 
-
-void setup()
+bool  cornermkread(void)
 {
-  // put your setup code here, to run once:
-
-  setupdio();
-  setupperipheral();
-  // Software init
-  setupsoftware();
+  if (digitalRead(12))
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
 }
-
-
-
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -122,9 +123,7 @@ u16 mode = 0;
 byte modesw = SW_NON;
 byte modeswtmp = SW_NON;
 u32  nrmlclk = 0;
-u32   intvlcnt = 0;
-void loop() 
-{
+void loop() {
   // put your main code here, to run repeatedly:
   u16 tmp;
   u16 adval;
@@ -253,24 +252,10 @@ void loop()
     Serial.print('\n');
       
   }
-  Serial.print(", ");
-  Serial.print(intvlcnt);
+
   Serial.print("\n");
  // ioextoutput(mode);
   modeswtmp = modesw;
   modesw = swread();
   delay(50);
-}
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/**                        Intr                                            ***/
-/*****************************************************************************/
-/*****************************************************************************/
-
-void fastintvlint()
-{
-  swintr();
-  intvlcnt++;
 }
