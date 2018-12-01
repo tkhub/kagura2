@@ -11,8 +11,8 @@
 #define SW_EDGE_UP 1
 #define SW_EDGE_DOWN 2
 
-#define SW_BUFFSIZE 16
+#define SW_BUFFSIZE 32
 
-#define SW_NOISCUT_LEN  8
+#define SW_NOISCUT_LEN  30
 
 #endif // _SW_H_

@@ -35,45 +35,61 @@ byte swreadold()
 byte swreadedge()
 {
     byte tmp = swedge;
-    noInterrupts();
-    swedge = SW_EDGE_NON;
-    interrupts();
+    if (tmp != SW_EDGE_NON)
+    {
+        noInterrupts();
+        swedge = SW_EDGE_NON;
+        interrupts();
+    }
     return tmp;
+}
+
+
+void swmntr()
+{
+    Serial.print("<<sw>>[n=");
+    Serial.print(swnow);
+    Serial.print(",o=");
+    Serial.print(swold);
+    Serial.print(",b=[");
+    for (int cnt = 0; cnt < SW_BUFFSIZE; cnt++)
+    {
+        Serial.print(swbff[cnt]);
+        Serial.print(",");
+    }
+    Serial.print("],e=");
+    Serial.print(swedge);
+    Serial.print("]<<sw>>");
 }
 
 void swintr()
 {
     int cnt;
-    swbff[0] = swreadad(); 
     //  sw buffer
-    for (cnt = 1; cnt < (SW_BUFFSIZE - 1); cnt++)
+    for (cnt = 0; cnt < (SW_BUFFSIZE - 1); cnt++)
     {
         swbff[cnt + 1] = swbff[cnt];
     }
+    swbff[0] = swreadad(); 
     //  nois fillter
-    for (cnt = 0; cnt < (SW_BUFFSIZE -1) ; cnt++)
+    for (cnt = 0; (cnt < (SW_BUFFSIZE -1)) && (swbff[cnt] == swbff[cnt+1]); cnt++)
+    {/* empty */}
+    //if (cnt > SW_NOISCUT_LEN)
+    if (cnt > (SW_BUFFSIZE - 2))
     {
-        if (swbff[cnt] != swbff[cnt+1])
-        {
-            break;
-        }
-    }
-    if (cnt > SW_NOISCUT_LEN)
-    {
-        swnow = swbff[0];
-        if ( (swold == SW_NON) && (swnow != SW_NON) )
-        {
-            swedge = SW_EDGE_UP;
-        }
-        else if ( (swold != SW_NON) && (swnow == SW_NON) )
-        {
-            swedge = SW_EDGE_DOWN;
-        }        
-        else
-        {
-            swedge = SW_EDGE_NON;
-        }
         swold = swnow;
+        swnow = swbff[0];
+        if (swold != swnow)
+        {
+            if (swnow == SW_NON)
+            {
+                swedge = SW_EDGE_DOWN;
+            }
+            else
+            {
+                swedge = SW_EDGE_UP;
+            }
+        }
     }
 }
 
