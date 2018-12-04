@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <MsTimer2.h>
+#include <TimerOne.h>
 #include "sw.h"
 #include "marker.h"
 //#include <FaBoLCDmini_AQM0802A.h>
@@ -77,7 +78,8 @@ void setupperipheral()
   Serial.print("SPI Init");
 
   MsTimer2::set(1, fastintvlint);
-
+  //Timer1.initialize(500);
+  //Timer1.attachInterrupt(fastintvlint);
 //  Wire.begin();
 }
 
@@ -128,6 +130,8 @@ void setup()
 #define RUN_SQ_STPEND     7
 #define TGTSPEED_LEN      3
 #define RN_SQ_CNTMAX      10000
+#define RN_SQ_CNTMSK      500   // RNSQCNTMSK x 10ms
+#define RN_SQ_CNTRSTVAL   10   // x 10ms
 
 byte modesw = SW_NON;
 int run_sq;
@@ -207,7 +211,7 @@ void loop(){
       {
         timecnt++;
       }
-      if (mkrreadivnt() && (500 < timecnt ))
+      if (mkrreadivnt() && (RN_SQ_CNTMSK < timecnt ))
       {
         if (mkrread() == MKR_GR)
         {
@@ -215,6 +219,10 @@ void loop(){
           targetspeed(0.5);
           Serial.print(",<GRGTWAIT -> SLWWAIT>\n");
           timecnt = 0;
+        }
+        else
+        {
+          timecnt = RN_SQ_CNTMSK - RN_SQ_CNTRSTVAL;
         }
       }
     break;
@@ -273,144 +281,7 @@ void loop(){
   delay(10);
 }
 /*
-u16 mode = 0;
-byte modesw = SW_NON;
-byte modeswtmp = SW_NON;
-u32  nrmlclk = 0;
-u32   intvlcnt = 0;
-void loop() {
-  // put your main code here, to run repeatedly:
-  u16 tmp;
-  u16 adval;
-  mkrmntr();
-  if (swreadedge() == SW_EDGE_UP)
-  {
-    modesw = swread();
-    switch (mode)
-    {
-      case 0:
-      // 0.0
-        dipid();
-        targetspeed(0.0);
-        mkrreadivnt();
-        Serial.print("0.0, DISABLE PID,");
-        if (modesw == SW_UP)
-        {
-          mode = 1;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 4;
-        }
-      break;
-      case 1:
-      // 0.1
-        enpid();
-        targetspeed(0.1);
-        Serial.print("0.1,");
-        if (modesw == SW_UP)
-        {
-          mode = 2;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 0;
-        }
-      break;
 
-      case 2:
-      // 0.5
-        targetspeed(0.5);
-        Serial.print("0.5,");
-        if (modesw == SW_UP)
-        {
-          mode = 3;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 1;
-        }
-      break;
-
-      case 3:
-      // 1.5
-        targetspeed(1.5);
-        Serial.print("1.5,");
-        if (modesw == SW_UP)
-        {
-          mode = 3;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 2;
-        }
-      break;
-
-      case 4:
-      // -0.1
-        enpid();
-        targetspeed(-0.1);
-        Serial.print("-0.1,");
-        if (modesw == SW_UP)
-        {
-          mode = 0;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 5;
-        }
-      break;
-
-      case 5:
-      // -0.5
-        targetspeed(-0.5);
-        Serial.print("-0.5,");
-        if (modesw == SW_UP)
-        {
-          mode = 4;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 6;
-        }
-      break;
-
-      case 6:
-      // -1.5
-        targetspeed(-1.5);
-        Serial.print("-1.5,");
-        if (modesw == SW_UP)
-        {
-          mode = 5;
-        }
-        else if (modesw == SW_DOWN)
-        {
-          mode = 6;
-        }
-      break;
-
-      default:
-      break;
-    }
-
-    if (modesw == SW_GO)
-    {
-      enmtr();
-      Serial.print("ENPID,");
-    }
-    else if (modesw == SW_ESC)
-    {
-      dimtr();
-      Serial.print("DISABLE PID,");
-    }
-    Serial.print(mode)  ;
-  }
-  Serial.print(", ");
-  Serial.print(intvlcnt);
-  Serial.print("\n");
- // ioextoutput(mode);
-  delay(50);
-}
 
 /*****************************************************************************/
 /*****************************************************************************/

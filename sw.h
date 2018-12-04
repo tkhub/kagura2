@@ -13,6 +13,6 @@
 
 #define SW_BUFFSIZE 32
 
-#define SW_NOISCUT_LEN  30
+#define SW_NOISCUT_LEN  15
 
 #endif // _SW_H_

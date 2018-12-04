@@ -23,9 +23,9 @@ int mkrsqcnt;     //  マーカーセンサシーケンサ用カウンタ
 u32 mkrcnt;     //  マーカーセンサシーケンサ用カウンタ2
 byte mkrchk;
 
-bool  mkrgrhyst;  // ゴールマーカー履歴
-bool  mkrcnhyst;  // コーナーマーカー履歴
-bool  mkrcrshyst;  // クロスライン履歴
+int mkrgrhyst;  // ゴールマーカー履歴
+int mkrcnhyst;  // コーナーマーカー履歴
+int mkrcrshyst;  // クロスライン履歴
 
 byte mkrst;       //  マーカーセンサ状態
 bool mkrivnt;     //  マーカーセンサイベント
@@ -55,9 +55,9 @@ void mkrinit()
   mkrsq = MKR_ST_WAIT_MKR;
   mkrsqcnt = 0;
   mkrcnt = 0;
-  mkrgrhyst = false;
-  mkrcnhyst = false;
-  mkrcrshyst = false;
+  mkrgrhyst = 0;
+  mkrcnhyst = 0;
+  mkrcrshyst = 0;
   mkrivnt = false;
 }
 
@@ -94,23 +94,23 @@ void mkrintr()
       if ( mkrcn() && mkrgr() )
       {
         // クロスライン履歴保存
-        mkrcrshyst = true;
+        mkrcrshyst++;
       }
       else if (mkrcn()) 
       {
         // コーナー履歴保存
-        mkrcnhyst = true;
+        mkrcnhyst++;
       }
       else if (mkrgr())
       {
         //  ゴール履歴保存
-        mkrgrhyst = true;
+        mkrgrhyst++;
       }
       else
       { 
         // Nothing to DO!
       }
-      if (mkrgrhyst || mkrcnhyst || mkrcrshyst)
+      if (1 < mkrgrhyst || 1 < mkrcnhyst|| 1 < mkrcrshyst)
       {
         mkrsq = MKR_ST_WAIT_JDG;
         mkrsqcnt = 0;
@@ -124,17 +124,17 @@ void mkrintr()
       if ( mkrcn() && mkrgr() )
       {
         // クロスライン履歴保存
-        mkrcrshyst = true;
+        mkrcrshyst++;
       }
       else if (mkrcn()) 
       {
         // コーナー履歴保存
-        mkrcnhyst = true;
+        mkrcnhyst++;
       }
       else if (mkrgr())
       {
         //  ゴール履歴保存
-        mkrgrhyst = true;
+        mkrgrhyst++;
       }
       else
       { 
@@ -150,17 +150,17 @@ void mkrintr()
       if (MKR_JDG_WAIT < mkrsqcnt)
       {
         // JDG時間経過
-        if (mkrcrshyst)
+        if (1 < mkrcrshyst)
         {
           mkrst = MKR_CRS;
           mkrivnt = true;
         }
-        else if (mkrcnhyst)
+        else if (1 < mkrcnhyst)
         {
           mkrst = MKR_CN;
           mkrivnt = true;
         }
-        else if (mkrgrhyst)
+        else if (1 < mkrgrhyst)
         {
           mkrst = MKR_GR;
           mkrivnt = true;
@@ -175,9 +175,9 @@ void mkrintr()
           mkrsq = MKR_ST_WAIT_MSK;
           mkrsqcnt = 0;
           mkrcnt = 0;
-          mkrcnhyst = false;
-          mkrcrshyst = false;
-          mkrgrhyst = false;
+          mkrcnhyst = 0;
+          mkrcrshyst = 0;
+          mkrgrhyst = 0;
         }
       }
     break;
@@ -202,9 +202,9 @@ void mkrintr()
       mkrsqcnt = 0;
       mkrcnt = 0;
       mkrst = MKR_NON;
-      mkrgrhyst = false;
-      mkrcnhyst = false;
-      mkrcrshyst = false;
+      mkrgrhyst = 0;
+      mkrcnhyst = 0;
+      mkrcrshyst = 0;
     break;
   }
 
